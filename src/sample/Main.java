@@ -23,38 +23,67 @@ import javafx.scene.canvas.Canvas;
 
 public class Main extends Application {
 
-    //variables
+    //Random variable
     private static final Random RAND = new Random();
-    private static final File themeFile=new File("music\\theme.mp3");
-    private static final Media theme=new Media(themeFile.toURI().toString());
-    private static final MediaPlayer themePlayer=new MediaPlayer(theme);
+    //Music Function
+    private static void playMusic(){
+         final File themeFile=new File("music\\theme.mp3");
+         final Media theme=new Media(themeFile.toURI().toString());
+         final MediaPlayer themePlayer=new MediaPlayer(theme);
+        themePlayer.setOnEndOfMedia(() -> themePlayer.seek(Duration.ZERO));
+        themePlayer.play();
 
-    File chickenFile=new File("music\\chickenSound.wav");
-    Media chickenTheme=new Media(chickenFile.toURI().toString());
-    MediaPlayer chickenSound=new MediaPlayer(chickenTheme);
+    }
+    private static void playShotSound(){
+        File shotFile=new File("music\\shoot.wav");
+        Media shot=new Media(shotFile.toURI().toString());
+        MediaPlayer shotSound=new MediaPlayer(shot);
+        shotSound.setAutoPlay(true);
 
+
+    }
+    private static void chickenSound(){
+        File chickenFile=new File("music\\chickenSound.wav");
+        Media chickenTheme=new Media(chickenFile.toURI().toString());
+        MediaPlayer chickenSound=new MediaPlayer(chickenTheme);
+        chickenSound.setAutoPlay(true);
+    }
+    private static void explosionSound(){
+        File explode=new File("music\\explosion.wav");
+        Media explodeTheme=new Media(explode.toURI().toString());
+        MediaPlayer explodeSound=new MediaPlayer(explodeTheme);
+        explodeSound.setAutoPlay(true);
+
+    }
+    //Sizing constants
     private static final int width = 1000;//screen width
     private static final int height = 800;//screen height
     private static final int rocketSize = 60;// rocket size in pixels
-    static final Image backGround = new Image("file:images/back.png");
-    static final Image chickensImage = new Image("file:images/1.png");
-    static final Image rocketImage = new Image("file:images/spaceship.png");
-    static final Image explosion = new Image("file:images/dead.png");
-    static final Image logo = new Image("file:images/logo.png");
-    static final Image heart = new Image("file:images/health.png");
 
+    //Images
+    private static final Image backGround = new Image("file:images/back.png");
+    private static final Image[] chickensImage = {new Image("file:images/1.png"),new Image("file:images/2.png"),new Image("file:images/1.png"),new Image("file:images/1.png"),new Image("file:images/1.png")};
+    private static final Image rocketImage = new Image("file:images/spaceship.png");
+    private static final Image explosion = new Image("file:images/dead.png");
+    private static final Image logo = new Image("file:images/logo.png");
+    private static final Image heart = new Image("file:images/health.png");
+
+    //Explosion animation Parameters
     static final int steps = 15;
     static final int explosionHeight = 120;
     static final int explosionWidth = 120;
     static final int explosionImageRows = 3;
     static final int explosionImageColumns = 3;
 
+    //Restrictions of number of shots and chickens appearing on screen
     final int chickensOnScreen = 8;//max number of chickens can exist on screen
     final int shotsOnScreen = chickensOnScreen * 2;
+
     boolean dead = false;
     boolean start=false;
     private GraphicsContext gc;
 
+    //Game elements lists
     Rocket player;//instantiate the rocket class
     List<Shot> shots; //list of references shots
     List<Chicken> chickenList;
@@ -62,8 +91,10 @@ public class Main extends Application {
     private double mouseX;
     private int score;//score variable
      private int lives=3;
-    //start///////////////////////////////////////////////////////////////////////////////////////
-    public void start(Stage stage)  {
+
+    //start
+    public void start(Stage stage) {
+
         Canvas canvas = new Canvas(width, height);
         gc = canvas.getGraphicsContext2D();
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(100), e -> run(gc)));
@@ -79,6 +110,7 @@ public class Main extends Application {
            }
             if(shots.size() < shotsOnScreen) {
                 shots.add(player.shoot());
+                playShotSound();
             }
             if(dead) {
                 dead = false;
@@ -111,16 +143,15 @@ public class Main extends Application {
         chickenList = new ArrayList<>();
         player = new Rocket(width / 2, height - rocketSize, rocketSize, rocketImage);
         IntStream.range(0, chickensOnScreen).mapToObj(i -> this.newChicken()).forEach(chickenList::add);//copied
-    }
+           }
     private void Restart(){
         shots = new ArrayList<>();
         chickenList = new ArrayList<>();
         player = new Rocket(width / 2, height - rocketSize, rocketSize, rocketImage);
         score =0;//initialize the score variable
-        IntStream.range(0, chickensOnScreen).mapToObj(i -> this.newChicken()).forEach(chickenList::add);//copied
-    }
+        IntStream.range(0, chickensOnScreen).mapToObj(i -> this.newChicken()).forEach(chickenList::add);    }
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//screen initialization
+    //screen initialization
     private void run(GraphicsContext gc) {
         gc.setFill(Color.grayRgb(35));//set background color
         gc.fillRect(0, 0, width, height);//fill all the gui
@@ -165,29 +196,20 @@ public class Main extends Application {
             }
             shot.update();
             shot.draw();
-
-//            for (int j = 0; j <chickenList.size(); j++) {
-//                //if the shot collided with the target increment the score,explode the target and make the shot disappear
-//                if ( shot.colide(chickenList.get(i))&& !chickenList.get(i).exploding) {
-//                    score++;
-//                    chickenList.get(i).explode();
-//                    shot.toRemove = true;
-//                }
-//            }
-
-
         //if the shot collided with the target increment the score,explode the target and make the shot disappear
 
-            for (Chicken chicken : chickenList) {
-                if(shot.collide(chicken) && !chicken.exploding) {
+            for (int j=0;j<chickenList.size();j++) {
+                if(shot.collide(chickenList.get(j)) && !chickenList.get(j).exploding) {
                     score++;
-                    chicken.explode();
-                      chickenFile=new File("music\\chickenSound.wav");
-                      chickenTheme=new Media(chickenFile.toURI().toString());
-                      chickenSound=new MediaPlayer(chickenTheme);
+                    float chance= RAND.nextFloat();
+                    chickenList.get(j).explode();
 
-                    chickenSound.setAutoPlay(true);
-
+                        if (lives<3){
+                            if (chance <= 0.05f) {
+                                lives++;
+                            }
+                        }
+                    chickenSound();
                     shot.toRemove = true;
                 }
             }
@@ -204,7 +226,7 @@ public class Main extends Application {
         if(dead && lives!=0){
             gc.setFont(Font.font(35));
             gc.setFill(Color.WHITE);
-            gc.fillText("You died but you have " + lives + " more live(s) \n Click the Mouse to continue", width / 2, height /2.5);
+            gc.fillText("You died but you have " + lives + " more chance(s) \n Click the Mouse to continue", width / 2, height /2.5);
         }
 
     }
@@ -250,20 +272,18 @@ public class Main extends Application {
 
         public boolean collide(Rocket other) { //same collision function used with the chicken and shots
           int d = distance(this.posX + size / 2, this.posY + size /2, other.posX + other.size / 2, other.posY + other.size / 2);
-          if (d < other.size / 2 + this.size / 2){
-              return true;
-          }
-            return false ;
+            return d < other.size / 2 + this.size / 2;
         }
 
         public void explode() {
                 exploding = true;
                 explosionStep = -1;
                 lives--;
-
+                 explosionSound();
         }
 
     }
+
 
   ////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     public class Chicken extends Rocket {
@@ -298,8 +318,6 @@ public class Main extends Application {
       public void explode() {
           exploding = true;
           explosionStep = -1;
-          //   chickenSound.play();////////////////////*************************AAAAAAAAAAAAAAA*****************************************************************
-
 
       }
   }
@@ -337,37 +355,20 @@ public class Main extends Application {
 
         public boolean collide(Rocket Rocket) {
             int distance = distance(this.posX + size / 2, this.posY + size / 2, Rocket.posX + Rocket.size / 2, Rocket.posY + Rocket.size / 2);
-            if( distance  < Rocket.size/ 2 + size / 2) {//if the chicken is half way through the rocket return true
-               return true;
-            }
-            return false;
+            //if the chicken is half way through the rocket return true
+            return distance < Rocket.size / 2 + size / 2;
         }
-
-
     }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-
-    Chicken newChicken() {//return a new object chicken with random x position
-        return new Chicken(50 + RAND.nextInt(width - 100), 0, rocketSize,chickensImage);
+    Chicken newChicken() {//return a new  chicken with random x position
+        return new Chicken(50 + RAND.nextInt(width - 100), 0, rocketSize,chickensImage[RAND.nextInt(chickensImage.length)]);
     }
     int distance(int x1, int y1, int x2, int y2) {//function to calculate the distance between two points
         return (int) Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
-
-        ////////////////////////
     }
-
-
     public static void main(String[] args) {
-
-
-        themePlayer.setOnEndOfMedia(new Runnable() {
-            public void run() {
-                themePlayer.seek(Duration.ZERO);
-            }
-        });
-        themePlayer.play();
+        playMusic();
         launch();
     }
 }
