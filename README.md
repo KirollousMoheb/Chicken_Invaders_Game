@@ -8,6 +8,7 @@
 This is a simple JavaFx implementation of the original Chicken Invaders game.
 
 ## GamePlay
+Click on the image to open the Gameplay Video
 [![IMAGE ALT TEXT HERE](https://img.youtube.com/vi/HnCDlYO-mao/0.jpg)](https://youtu.be/HnCDlYO-mao)
 
 ## Features
