@@ -1,7 +1,8 @@
 package sample;
+import javafx.geometry.Side;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.image.Image;
-import javafx.scene.layout.StackPane;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
@@ -19,7 +20,6 @@ import javafx.application.Application;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
-
 
 public class Main extends Application {
 
@@ -95,9 +95,12 @@ public class Main extends Application {
     //start
     public void start(Stage stage) {
 
+        stage.getIcons().add(chickensImage[1]);
         Canvas canvas = new Canvas(width, height);
         gc = canvas.getGraphicsContext2D();
+
         Timeline timeline = new Timeline(new KeyFrame(Duration.millis(100), e -> run(gc)));
+
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
         canvas.setCursor(Cursor.MOVE);
@@ -107,6 +110,7 @@ public class Main extends Application {
            if(!start){
                start=true;
                 setup();
+
            }
             if(shots.size() < shotsOnScreen) {
                 shots.add(player.shoot());
@@ -115,6 +119,7 @@ public class Main extends Application {
             if(dead) {
                 dead = false;
                 anotherChance();
+
             }
             if (lives==0){
                 Restart();
@@ -158,16 +163,17 @@ public class Main extends Application {
         gc.setTextAlign(TextAlignment.CENTER);//align text to center
         gc.setFont(Font.font(25));//font size
         gc.setFill(Color.WHITE);//font color
-        gc.fillText("Score: " + score, 50,  20);
+        gc.fillText("Score: " + score, 70,  20);
+        gc.fillText("Made by Kirollous Moheb",width-150,height-10);
+
         for (int i = 0; i < lives; i++) {
-            gc.drawImage(heart, i * 28 + 8, height-30,20,20);
+            gc.drawImage(heart, i * 50 + 8, height-40,40,40);
         }
         if(!start){
-            gc.setFont(Font.font(35));
-            gc.setFill(Color.WHITE);
             gc.drawImage(logo,300,40,400,250);
-            gc.fillText("Welcome to Chicken Invaders 1.0 \n Click on the mouse to start", width / 2, height /2.5);
-
+            gc.setFont(Font.font(30));
+            gc.setFill(Color.DARKCYAN);
+            gc.fillText("Welcome to Chicken Invaders 1.0 \nYou have Three Lives so be careful \nThe Game gets Faster as your score increase\nYour missiles gets Faster and Larger if your score exceeded 25 \nIf you died Three times your score is reset and you start over \nThere is a small chance that a chicken might gain you one more life \n  \n  \n Click on the mouse to start", width / 2, height /2.5);
 
         }
         if(lives==0) {//print a message if the player lost
@@ -215,7 +221,6 @@ public class Main extends Application {
             }
         }
         //for loop to create new chickens in the next round if the chicken is killed or passed down the screen
-
         for (int i =0; i < chickenList.size(); i++){
             if(chickenList.get(i).destroyed)  {
                 chickenList.set(i, newChicken());
@@ -279,7 +284,7 @@ public class Main extends Application {
                 exploding = true;
                 explosionStep = -1;
                 lives--;
-                 explosionSound();
+                explosionSound();
         }
 
     }
@@ -303,16 +308,6 @@ public class Main extends Application {
                 destroyed = true;
             }
         }
-
-      @Override
-      public void draw() {
-          if (exploding) {
-              gc.drawImage(explosion,explosionStep % explosionImageColumns * explosionHeight, (explosionStep / explosionImageRows) * explosionWidth + 1, explosionHeight, explosionWidth,
-                      posX, posY, size, size);
-          } else {
-              gc.drawImage(img, posX, posY, size, size);
-          }
-      }
 
       @Override
       public void explode() {
@@ -342,14 +337,15 @@ public class Main extends Application {
 
 
         public void draw() {
-            gc.setFill(Color.RED);
+            gc.setFill(Color.AQUAMARINE);
             if (score >=25) {//change the bullet size and color as score increase
                 //to make it easier for the player as the speed increase by increasing the score
-                gc.setFill(Color.YELLOWGREEN);
+                gc.setFill(Color.INDIANRED);
                 speed = 40;//also update the speed of shots
                 gc.fillRect(posX-5, posY-10, size+10, size+30);//update size of shots(increase it)
             } else {//else leave everything as it is
                 gc.fillOval(posX, posY, size, size);
+
             }
         }
 
@@ -368,6 +364,7 @@ public class Main extends Application {
         return (int) Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
     }
     public static void main(String[] args) {
+
         playMusic();
         launch();
     }
