@@ -29,7 +29,7 @@ Click on the image to open the Gameplay Video
 
 ## Installation
 
-The game requires [JavaFx 2.0] to run.
+The game requires [JavaFx 11] to run.
 
 Install the JavaFx and start the game on your device.
 
